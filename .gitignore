@@ -1,1 +1,33 @@
 node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual env
+.venv/
+
+# Django
+*.sqlite3
+debug.log
+staticfiles/
+media/
+
+# Env файлы
+.env
+.env.local
+.env.production
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Docker
+.dockerignore
+
+# macOS
+.DS_Store
