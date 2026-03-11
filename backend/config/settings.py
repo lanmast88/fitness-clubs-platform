@@ -33,9 +33,15 @@ THIRD_PARTY_APPS =  [
 ]
 
 LOCAL_APPS = [
+    'apps.users',
+    'apps.clubs',
+    'apps.memberships',
+    'apps.workouts',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

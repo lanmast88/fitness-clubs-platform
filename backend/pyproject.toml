@@ -13,3 +13,8 @@ dependencies = [
     "psycopg>=3.3.3",
     "python-decouple>=3.8",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.5",
+]
