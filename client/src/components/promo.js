@@ -3,31 +3,31 @@ const promoes = [
     title: "Весенний старт",
     subtitle: "-35% на годовую карту до 31 марта",
     text: "Доступ во все клубы сети, вводная тренировка и анализ состава тела в подарок.",
-    image: "https://images.unsplash.com",
+    image: "/promo3.jpg",
   },
   {
     title: "Приведи друга",
     subtitle: "2 месяца заморозки бесплатно",
     text: "Оформи карту вместе с другом и тренируйтесь по персональному плану без доплаты.",
-    image: "https://images.unsplash.com",
+    image: "/promo4.jpg",
   },
   {
     title: "Тест-драйв StackFitness",
     subtitle: "Первый визит — 0 ₽",
     text: "Попробуй любой тренажер и оцени атмосферу клуба перед покупкой абонемента.",
-    image: "https://images.unsplash.com",
+    image: "/promo6.jpg",
   },
   {
     title: "Студенческий драйв",
     subtitle: "Спеццена по студенческому",
     text: "Тренируйся в любое время со скидкой 15% на ежемесячную подписку.",
-    image: "https://images.unsplash.com",
+    image: "/promo1.png",
   },
   {
     title: "Бизнес-тариф",
     subtitle: "Для команд от 5 человек",
     text: "Специальные условия для корпоративных клиентов и совместные тренировки для сплочения.",
-    image: "https://images.unsplash.com",
+    image: "/promo7.jpg",
   },
 ];
 

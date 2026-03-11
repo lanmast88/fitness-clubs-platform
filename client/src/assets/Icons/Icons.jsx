@@ -1,6 +1,6 @@
 const CheckIcon = () => (
   <svg
-    className="w-4 h-4 text-white"
+    className="w-4 h-4 text-white drop-shadow-[0_0_6px_rgba(157,80,187,0.7)]"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -16,7 +16,7 @@ const CheckIcon = () => (
 
 const MinusIcon = () => (
   <svg
-    className="w-4 h-4 text-slate-400"
+    className="w-4 h-4 text-slate-400 drop-shadow-[0_0_6px_rgba(157,80,187,0.35)]"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -32,7 +32,7 @@ const MinusIcon = () => (
 
 const InfoIcon = () => (
   <svg
-    className="w-4 h-4 text-slate-300 cursor-help"
+    className="w-4 h-4 text-slate-300 cursor-help drop-shadow-[0_0_8px_rgba(157,80,187,0.6)]"
     fill="currentColor"
     viewBox="0 0 24 24"
   >

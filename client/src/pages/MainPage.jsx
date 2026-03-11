@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import logo from "../../public/logo.png";
-import { clubs } from "../components/clubs";
 import { promoes } from "../components/promo";
 import { memberships } from "../components/memberships";
 import MembershipCard from "../components/MembershipCard";
@@ -30,6 +29,7 @@ const halls = [
 
 function MainPage() {
   const tariffsSliderRef = useRef(null);
+  const promoSliderRef = useRef(null);
 
   const slideTariffs = (direction) => {
     if (!tariffsSliderRef.current) return;
@@ -38,10 +38,17 @@ function MainPage() {
       behavior: "smooth",
     });
   };
+  const slidePromos = (direction) => {
+    if (!promoSliderRef.current) return;
+    promoSliderRef.current.scrollBy({
+      left: direction * 360,
+      behavior: "smooth",
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/90 backdrop-blur">
+    <div className="min-h-screen bg-[#0A0B10] text-slate-100">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0A0B10]/90 backdrop-blur">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <a href="#" className="flex items-center gap-3">
             <img
@@ -57,14 +64,14 @@ function MainPage() {
           <ul className="hidden items-center gap-6 text-sm font-medium text-slate-200 md:flex">
             {navLinks.map((link) => (
               <li key={link}>
-                <a href="#" className="transition hover:text-cyan-300">
+                <a href="#" className="transition hover:text-[#9D50BB]">
                   {link}
                 </a>
               </li>
             ))}
           </ul>
 
-          <button className="rounded-full bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-cyan-300">
+          <button className="rounded-full bg-[#9D50BB] px-4 py-2 text-sm font-semibold text-white shadow-[0_0_18px_rgba(157,80,187,0.45)] transition hover:shadow-[0_0_26px_rgba(157,80,187,0.6)]">
             Записаться
           </button>
         </nav>
@@ -72,11 +79,41 @@ function MainPage() {
 
       <main>
         <section className="mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-6 lg:px-8">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="mb-6 flex items-end justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
+                Акции
+              </p>
+              <h3 className="mt-2 text-3xl font-bold">Специальные предложения</h3>
+            </div>
+            <div className="hidden sm:flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => slidePromos(-1)}
+                className="h-10 w-10 rounded-full border border-[#9D50BB]/40 bg-white/5 text-slate-100 shadow-[0_0_12px_rgba(157,80,187,0.35)] transition hover:bg-white/10"
+                aria-label="Прокрутить акции влево"
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                onClick={() => slidePromos(1)}
+                className="h-10 w-10 rounded-full border border-[#9D50BB]/40 bg-white/5 text-slate-100 shadow-[0_0_12px_rgba(157,80,187,0.35)] transition hover:bg-white/10"
+                aria-label="Прокрутить акции вправо"
+              >
+                →
+              </button>
+            </div>
+          </div>
+
+          <div
+            ref={promoSliderRef}
+            className="flex items-stretch gap-4 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
             {promoes.map((slide) => (
               <article
                 key={slide.title}
-                className="group relative min-h-72 overflow-hidden rounded-2xl border border-white/10"
+                className="group relative min-h-72 w-[320px] shrink-0 snap-center overflow-hidden rounded-2xl border border-white/10"
               >
                 <img
                   src={slide.image}
@@ -114,7 +151,7 @@ function MainPage() {
               <button
                 type="button"
                 onClick={() => slideTariffs(-1)}
-                className="h-10 w-10 rounded-full border border-white/20 bg-white/5 text-slate-100 transition hover:bg-white/10"
+                className="h-10 w-10 rounded-full border border-[#9D50BB]/40 bg-white/5 text-slate-100 shadow-[0_0_12px_rgba(157,80,187,0.35)] transition hover:bg-white/10"
                 aria-label="Прокрутить тарифы влево"
               >
                 ←
@@ -122,7 +159,7 @@ function MainPage() {
               <button
                 type="button"
                 onClick={() => slideTariffs(1)}
-                className="h-10 w-10 rounded-full border border-white/20 bg-white/5 text-slate-100 transition hover:bg-white/10"
+                className="h-10 w-10 rounded-full border border-[#9D50BB]/40 bg-white/5 text-slate-100 shadow-[0_0_12px_rgba(157,80,187,0.35)] transition hover:bg-white/10"
                 aria-label="Прокрутить тарифы вправо"
               >
                 →
@@ -162,7 +199,7 @@ function MainPage() {
             {halls.map((hall) => (
               <article
                 key={hall.title}
-                className="overflow-hidden rounded-2xl border border-white/10 bg-white/5"
+                className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur"
               >
                 <img
                   src={hall.image}
@@ -181,15 +218,7 @@ function MainPage() {
 
       <footer className="border-t border-white/10 bg-slate-900/70">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-400 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <p>© 2026 Fitness Clubs. Сеть фитнес-клубов для учебного проекта.</p>
-          <div className="flex gap-4">
-            <a href="#" className="transition hover:text-cyan-300">
-              Политика
-            </a>
-            <a href="#" className="transition hover:text-cyan-300">
-              Контакты
-            </a>
-          </div>
+          <p>© 2026 Stack Fitness</p>
         </div>
       </footer>
     </div>

@@ -1,1 +1,113 @@
 @import "tailwindcss";
+
+:root {
+  --color-primary: #9D50BB;
+}
+
+.swiper {
+  position: relative;
+}
+
+.swiper-wrapper {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding-bottom: 32px;
+  scrollbar-width: none;
+}
+
+.swiper-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.swiper-slide {
+  flex: 0 0 auto;
+  width: 320px;
+  scroll-snap-align: center;
+}
+
+.swiper-pagination {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  display: flex;
+  justify-content: center;
+}
+
+.MainBannerSlider_root__hY8mq .swiper {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.MainBannerSlider_root__hY8mq .swiper-pagination-bullet {
+  height: 8px;
+  width: 8px;
+  margin: 0 2px !important;
+  background-color: var(--color-primary);
+  border-radius: 8px;
+}
+
+.MainBannerSlider_root__hY8mq .swiper-pagination-bullet-active {
+  height: 8px;
+  width: 16px;
+  border-radius: 8px;
+  background-color: var(--color-primary);
+}
+
+.MainBannerSlider_withDots__yJYGQ .swiper {
+  padding-bottom: 32px;
+}
+
+.MainBannerSlider_innerWrapper__MRPHg {
+  position: relative;
+}
+
+.MainBannerSlider_swiperNavigation__RzvhV {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .MainBannerSlider_swiperNavigation__RzvhV {
+    display: block;
+  }
+}
+
+.MainBannerSlider_arrowLeft__AtDRU,
+.MainBannerSlider_arrowRight__5k3rE {
+  position: absolute;
+  top: calc(50% - 8px);
+  z-index: 10;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: rgba(25, 5, 66, 0.15);
+  border: 1px solid hsla(0, 0%, 100%, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 1000px;
+}
+
+.MainBannerSlider_arrowLeft__AtDRU {
+  left: -12px;
+  transform: matrix(-1, 0, 0, 1, 0, 0) translateY(-50%);
+}
+
+.MainBannerSlider_arrowRight__5k3rE {
+  right: -12px;
+  transform: matrix(-1, 0, 0, 1, 0, 0) rotate(180deg) translateY(50%);
+}
+
+.MainBannerSlider_arrowLeft__AtDRU:hover,
+.MainBannerSlider_arrowRight__5k3rE:hover {
+  cursor: pointer;
+}
+
+.MainBannerSlider_arrowLeft__AtDRU svg,
+.MainBannerSlider_arrowRight__5k3rE svg {
+  fill: #fff;
+}
