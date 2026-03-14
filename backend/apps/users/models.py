@@ -35,7 +35,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ADMIN   = 'admin',   'Admin'
 
     email      = models.EmailField(unique=True, verbose_name='Email')
-    phone      = models.CharField(max_length=50, blank=True, verbose_name='Телефон')
+    phone      = models.CharField(max_length=50, blank=True, unique=True, null=True, verbose_name='Телефон')
     role       = models.CharField(
         max_length=50, choices=Role.choices, default=Role.CLIENT, verbose_name='Роль'
     )
