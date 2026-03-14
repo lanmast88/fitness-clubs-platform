@@ -44,12 +44,12 @@ class LogoutView(APIView):
             refresh_token = request.data['refresh']
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
 
-class MeView(generics.RetrieveAPIView):
+class MeView(generics.RetrieveUpdateAPIView):
     """
     GET /api/auth/me/
     Получение информации о текущем пользователе.
@@ -57,6 +57,7 @@ class MeView(generics.RetrieveAPIView):
 
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'patch']
 
     def get_object(self):
         return self.request.user
