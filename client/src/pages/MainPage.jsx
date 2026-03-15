@@ -1,10 +1,8 @@
 import { useRef } from "react";
-import logo from "../../public/logo.png";
 import { promoes } from "../components/promo";
-import { memberships } from "../components/memberships";
-import MembershipCard from "../components/MembershipCard";
 
-const navLinks = ["Клубы", "Тарифы", "Акции", "Новости", "Групповые", "FAQ"];
+import Header from "../components/Header";
+import MembershipSlide from "../components/MembershipsSlide";
 
 const halls = [
   {
@@ -28,16 +26,7 @@ const halls = [
 ];
 
 function MainPage() {
-  const tariffsSliderRef = useRef(null);
   const promoSliderRef = useRef(null);
-
-  const slideTariffs = (direction) => {
-    if (!tariffsSliderRef.current) return;
-    tariffsSliderRef.current.scrollBy({
-      left: direction * 360,
-      behavior: "smooth",
-    });
-  };
   const slidePromos = (direction) => {
     if (!promoSliderRef.current) return;
     promoSliderRef.current.scrollBy({
@@ -48,34 +37,7 @@ function MainPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0B10] text-slate-100">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0A0B10]/90 backdrop-blur">
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <a href="#" className="flex items-center gap-3">
-            <img
-              src={logo}
-              alt="Логотип фитнес клуба"
-              className="h-15 w-20 rounded-lg object-cover"
-            />
-            <span className="text-lg font-semibold tracking-wide">
-              Stack Fitness
-            </span>
-          </a>
-
-          <ul className="hidden items-center gap-6 text-sm font-medium text-slate-200 md:flex">
-            {navLinks.map((link) => (
-              <li key={link}>
-                <a href="#" className="transition hover:text-[#9D50BB]">
-                  {link}
-                </a>
-              </li>
-            ))}
-          </ul>
-
-          <button className="rounded-full bg-[#9D50BB] px-4 py-2 text-sm font-semibold text-white shadow-[0_0_18px_rgba(157,80,187,0.45)] transition hover:shadow-[0_0_26px_rgba(157,80,187,0.6)]">
-            Записаться
-          </button>
-        </nav>
-      </header>
+      <Header />
 
       <main>
         <section className="mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-6 lg:px-8">
@@ -84,7 +46,9 @@ function MainPage() {
               <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
                 Акции
               </p>
-              <h3 className="mt-2 text-3xl font-bold">Специальные предложения</h3>
+              <h3 className="mt-2 text-3xl font-bold">
+                Специальные предложения
+              </h3>
             </div>
             <div className="hidden sm:flex items-center gap-2">
               <button
@@ -108,76 +72,41 @@ function MainPage() {
 
           <div
             ref={promoSliderRef}
-            className="flex items-stretch gap-4 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex items-stretch gap-6 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {promoes.map((slide) => (
               <article
                 key={slide.title}
-                className="group relative min-h-72 w-[320px] shrink-0 snap-center overflow-hidden rounded-2xl border border-white/10"
+                className="group relative h-[500px] w-[1100px] shrink-0 snap-center overflow-hidden rounded-[32px] border border-white/10 bg-white/5 backdrop-blur"
               >
                 <img
                   src={slide.image}
                   alt={slide.title}
-                  className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-                <div className="relative flex h-full flex-col justify-end p-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
-                    Акция
-                  </p>
-                  <h2 className="mt-2 text-2xl font-bold">{slide.title}</h2>
-                  <p className="mt-1 text-sm font-semibold text-cyan-200">
-                    {slide.subtitle}
-                  </p>
-                  <p className="mt-3 text-sm text-slate-200">{slide.text}</p>
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#0A0B10]/80 via-[#0A0B10]/35 to-transparent" />
+                <div className="relative flex h-full flex-col justify-end p-8">
+                  <div className="mr-auto max-w-[420px] rounded-2xl bg-white/10 p-6 backdrop-blur">
+                    <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
+                      Акция
+                    </p>
+                    <h2 className="mt-2 text-3xl font-bold text-white">
+                      {slide.title}
+                    </h2>
+                    <p className="mt-2 text-sm font-semibold text-cyan-200">
+                      {slide.subtitle}
+                    </p>
+                    <p className="mt-3 text-sm text-slate-200">{slide.text}</p>
+                    <button className="mt-5 inline-flex items-center rounded-full bg-[#9D50BB] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_0_18px_rgba(157,80,187,0.45)] transition hover:shadow-[0_0_26px_rgba(157,80,187,0.6)]">
+                      Оставить заявку
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
           </div>
         </section>
-
-        <section
-          className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8"
-          id="tariffs"
-        >
-          <div className="mb-8 flex items-end justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
-                Тарифы
-              </p>
-              <h3 className="mt-2 text-3xl font-bold">Выбери свою карту</h3>
-            </div>
-            <div className="hidden sm:flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => slideTariffs(-1)}
-                className="h-10 w-10 rounded-full border border-[#9D50BB]/40 bg-white/5 text-slate-100 shadow-[0_0_12px_rgba(157,80,187,0.35)] transition hover:bg-white/10"
-                aria-label="Прокрутить тарифы влево"
-              >
-                ←
-              </button>
-              <button
-                type="button"
-                onClick={() => slideTariffs(1)}
-                className="h-10 w-10 rounded-full border border-[#9D50BB]/40 bg-white/5 text-slate-100 shadow-[0_0_12px_rgba(157,80,187,0.35)] transition hover:bg-white/10"
-                aria-label="Прокрутить тарифы вправо"
-              >
-                →
-              </button>
-            </div>
-          </div>
-
-          <div
-            ref={tariffsSliderRef}
-            className="flex items-stretch gap-6 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {memberships.map((plan) => (
-              <div key={plan.id} className="snap-center shrink-0">
-                <MembershipCard plan={plan} />
-              </div>
-            ))}
-          </div>
-        </section>
+        <MembershipSlide />
 
         <section
           className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8"
