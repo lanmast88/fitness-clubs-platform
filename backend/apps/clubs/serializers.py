@@ -21,7 +21,7 @@ class ClubSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
-class ClibListSerializer(serializers.ModelSerializer):
+class ClubListSerializer(serializers.ModelSerializer):
     """
     Облегчённый сериализатор для списка клубов — без вложенных залов.
     Используется в GET /clubs/ чтобы не грузить лишние данные.
