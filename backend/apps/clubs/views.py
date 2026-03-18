@@ -3,6 +3,8 @@ from datetime import date
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from .models import Club, Room
 from .serializers import (
@@ -83,5 +85,5 @@ class RoomViewSet(
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        club_id = self.kwargs['club_pk']
-        return Room.objects.filter(club_id=club_id).order_by('name')
+        club = get_object_or_404(Club, pk=self.kwargs['club_pk'])
+        return Room.objects.filter(club=club).order_by('name')
