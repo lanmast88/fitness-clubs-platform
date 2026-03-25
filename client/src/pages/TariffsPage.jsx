@@ -1,5 +1,3 @@
-import { memberships } from "../components/memberships";
-import MembershipCard from "../components/MembershipCard";
 import Header from "../components/Header";
 import MembershipSlide from "../components/MembershipsSlide";
 
@@ -7,18 +5,7 @@ function TariffsPage() {
   return (
     <div className="min-h-screen bg-[#0A0B10] text-slate-100">
       <Header />
-      <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-10">
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
-            Тарифы
-          </p>
-          <h1 className="mt-2 text-4xl font-bold">Выберите свой браслет</h1>
-          <p className="mt-3 max-w-2xl text-slate-300">
-            Те же карточки с тарифами, что и на главной, но теперь на отдельной
-            странице для спокойного выбора.
-          </p>
-        </div>
-
+      <main className="mx-auto max-w-6xl px-4 pt-6 pb-12 sm:px-6 lg:px-8">
         <MembershipSlide embedded />
 
         <div className="mt-16 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">

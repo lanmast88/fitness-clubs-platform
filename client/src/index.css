@@ -4,6 +4,10 @@
   --color-primary: #9D50BB;
 }
 
+body {
+  background-color: #0A0B10;
+}
+
 .swiper {
   position: relative;
 }

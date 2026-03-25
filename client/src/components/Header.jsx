@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import logo from "../../public/logo.png";
 import { clubs } from "./clubs";
+import RegistrationForm from "../pages/RegistrationForm";
 
 const navLinks = [
   { name: "Клубы", linkTo: "/clubs" },
@@ -16,7 +17,7 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0A0B10]/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <nav className="mx-auto flex w-full max-w-none items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <NavLink
           to="/"
           className="flex items-center gap-3"
@@ -69,10 +70,13 @@ function Header() {
               </NavLink>
             ))}
         </ul>
-
-        <button className="rounded-full bg-[#9D50BB] px-4 py-2 text-sm font-semibold text-white shadow-[0_0_18px_rgba(157,80,187,0.45)] transition hover:shadow-[0_0_26px_rgba(157,80,187,0.6)]">
+        <NavLink
+          to="/registration"
+          onClick={scrollToTop}
+          className="rounded-full bg-[#9D50BB] px-4 py-2 text-sm font-semibold text-white shadow-[0_0_18px_rgba(157,80,187,0.45)] transition hover:shadow-[0_0_26px_rgba(157,80,187,0.6)]"
+        >
           Записаться
-        </button>
+        </NavLink>
       </nav>
     </header>
   );

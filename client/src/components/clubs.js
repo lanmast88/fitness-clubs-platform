@@ -18,7 +18,7 @@ const clubs = [
     name: "StackFitness Кутузовская",
     address: "Кутузовский проспект, д. 36, стр. 23 (БЦ «President Plaza»)",
     phone: "+7 (495) 100-20-03",
-    timezone: "6:00 - 00:00",
+    timezone: "6:00 - 24:00",
   },
   {
     id: 4,
@@ -32,7 +32,7 @@ const clubs = [
     name: "StackFitness Автозаводская",
     address: "ул. Ленинская Слобода, д. 26 (ТЦ «Roomer»)",
     phone: "+7 (495) 100-20-05",
-    timezone: "7:00 - 00:00",
+    timezone: "7:00 - 24:00",
   },
 ];
 
