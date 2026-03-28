@@ -11,3 +11,4 @@ sqlparse==0.5.5
 djangorestframework-simplejwt==5.5.1
 drf-spectacular==0.29.0
 drf-nested-routers==0.95.0
+python-dateutil==2.9.0
