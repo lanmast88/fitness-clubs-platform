@@ -1,9 +1,10 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 
+from apps.users.permissions import IsClient
 from .models import Booking, PersonalTraining, WorkoutSession, WorkoutType
 from .serializers import (
     BookingCreateSerializer,
@@ -57,13 +58,17 @@ class WorkoutSessionViewSet(
         )
 
     @action(
-    detail=True,
-    methods=['post'],
-    url_path='book',
-    permission_classes=[IsAuthenticated],
+        detail=True,
+        methods=['post'],
+        url_path='book',
+        permission_classes=[IsClient],
     )
     def book(self, request, pk=None):
-        session = get_object_or_404(WorkoutSession, pk=pk)  # ← без фильтра статуса
+        """
+        POST /api/v1/sessions/{id}/book/
+        Записаться на тренировку.
+        """
+        session = get_object_or_404(WorkoutSession, pk=pk)
 
         serializer = BookingCreateSerializer(
             data={'session': session.id},
@@ -81,7 +86,7 @@ class WorkoutSessionViewSet(
         detail=True,
         methods=['post'],
         url_path='cancel-book',
-        permission_classes=[IsAuthenticated],
+        permission_classes=[IsClient],
     )
     def cancel_book(self, request, pk=None):
         """
@@ -120,7 +125,7 @@ class BookingViewSet(
     list: GET /api/v1/bookings/
     """
     serializer_class   = BookingSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsClient]
 
     def get_queryset(self):
         return (
@@ -145,7 +150,11 @@ class PersonalTrainingViewSet(
     create:   POST /api/v1/personal-trainings/
     cancel:   POST /api/v1/personal-trainings/{id}/cancel/
     """
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['create', 'cancel']:
+            return [IsClient()]
+        return [IsAuthenticated()]
 
     def get_queryset(self):
         return (
@@ -160,7 +169,12 @@ class PersonalTrainingViewSet(
             return PersonalTrainingCreateSerializer
         return PersonalTrainingSerializer
 
-    @action(detail=True, methods=['post'], url_path='cancel')
+    @action(
+        detail=True,
+        methods=['post'],
+        url_path='cancel',
+        permission_classes=[IsClient],
+    )
     def cancel(self, request, pk=None):
         """
         POST /api/v1/personal-trainings/{id}/cancel/
