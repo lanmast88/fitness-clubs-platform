@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from apps.users.permissions import IsClient
 from .models import Membership, MembershipPlan
 from .serializers import (
     MembershipCreateSerializer,
@@ -43,7 +44,11 @@ class MembershipViewSet(
     freeze:   POST /api/v1/memberships/{id}/freeze/
     cancel:   POST /api/v1/memberships/{id}/cancel/
     """
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['create', 'freeze', 'cancel']:
+            return [IsClient()]
+        return [IsAuthenticated()]
 
     def get_queryset(self):
         return (
@@ -59,7 +64,12 @@ class MembershipViewSet(
             return MembershipCreateSerializer
         return MembershipSerializer
 
-    @action(detail=True, methods=['post'], url_path='freeze')
+    @action(
+        detail=True,
+        methods=['post'],
+        url_path='freeze',
+        permission_classes=[IsClient],
+    )
     def freeze(self, request, pk=None):
         """
         POST /api/v1/memberships/{id}/freeze/
@@ -84,7 +94,12 @@ class MembershipViewSet(
             status=status.HTTP_201_CREATED,
         )
 
-    @action(detail=True, methods=['post'], url_path='cancel')
+    @action(
+        detail=True,
+        methods=['post'],
+        url_path='cancel',
+        permission_classes=[IsClient],
+    )
     def cancel(self, request, pk=None):
         """
         POST /api/v1/memberships/{id}/cancel/
