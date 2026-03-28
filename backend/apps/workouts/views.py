@@ -2,6 +2,7 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from .models import Booking, PersonalTraining, WorkoutSession, WorkoutType
 from .serializers import (
@@ -56,17 +57,13 @@ class WorkoutSessionViewSet(
         )
 
     @action(
-        detail=True,
-        methods=['post'],
-        url_path='book',
-        permission_classes=[IsAuthenticated],
+    detail=True,
+    methods=['post'],
+    url_path='book',
+    permission_classes=[IsAuthenticated],
     )
     def book(self, request, pk=None):
-        """
-        POST /api/v1/sessions/{id}/book/
-        Записаться на тренировку.
-        """
-        session = self.get_object()
+        session = get_object_or_404(WorkoutSession, pk=pk)  # ← без фильтра статуса
 
         serializer = BookingCreateSerializer(
             data={'session': session.id},
