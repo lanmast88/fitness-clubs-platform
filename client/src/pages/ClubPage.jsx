@@ -350,8 +350,7 @@ function ClubPage() {
                 </div>
                 <div>
                   <div className="font-semibold text-white">Адрес</div>
-                  <div>г. Москва, Алтуфьевское шоссе, 1-й километр, вл3с1,</div>
-                  <div>ТРЦ «Весна», 2 этаж</div>
+                  <div> {club.address}</div>
                 </div>
               </div>
 

@@ -5,6 +5,7 @@ import ClubPage from "./pages/ClubPage";
 import RegistrationForm from "./pages/RegistrationForm";
 import PromotionsPage from "./pages/PromotionsPage";
 import FAQPage from "./pages/FAQPage";
+import News from "./pages/NewsPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Route path="/clubs/:id" element={<ClubPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
       <Route path="/registration" element={<RegistrationForm />} />
+      <Route path="/news" element={<News />} />
     </Routes>
   );
 }
