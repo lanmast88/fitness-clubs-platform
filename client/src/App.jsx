@@ -6,6 +6,7 @@ import RegistrationForm from "./pages/RegistrationForm";
 import PromotionsPage from "./pages/PromotionsPage";
 import FAQPage from "./pages/FAQPage";
 import News from "./pages/NewsPage";
+import Account from "./pages/AccountPage";
 
 function App() {
   return (
@@ -15,9 +16,10 @@ function App() {
       <Route path="/promotions" element={<PromotionsPage />} />
       <Route path="/faq" element={<FAQPage />} />
       <Route path="/clubs/:id" element={<ClubPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
       <Route path="/registration" element={<RegistrationForm />} />
       <Route path="/news" element={<News />} />
+      <Route path="/account" element={<Account />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
