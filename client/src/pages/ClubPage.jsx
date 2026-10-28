@@ -16,23 +16,30 @@ import {
   WorkHours,
 } from "../assets/Icons/Icons";
 
-const GALLERIES = {
-  Авиапарк: [
-    { id: 1, label: "Зал Авиапарк 1", src: "/aviapark_1.png" },
-    { id: 2, label: "Зал Авиапарк 2", src: "/aviapark_2.jpg" },
-    { id: 3, label: "Зал Авиапарк 3", src: "/aviapark_3.jpg" },
-  ],
-};
-
-const DEFAULT_GALLERY = [
-  { id: 1, label: "Фото зала 1", src: "" },
-  { id: 2, label: "Фото зала 2", src: "" },
-  { id: 3, label: "Фото зала 3", src: "" },
+// Фотографий по клубам в API нет, поэтому галерея общая для всей сети.
+const GALLERY = [
+  { id: 1, label: "Тренажёрный зал", src: "/aviapark_1.png" },
+  { id: 2, label: "Зона свободных весов", src: "/aviapark_2.jpg" },
+  { id: 3, label: "Кардио-зона", src: "/aviapark_3.jpg" },
 ];
 
-function galleryFor(clubName) {
-  const key = Object.keys(GALLERIES).find((name) => clubName.includes(name));
-  return key ? GALLERIES[key] : DEFAULT_GALLERY;
+/** Инициалы для аватара-заглушки тренера: фото в данных нет. */
+function initials(name) {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+/** Яндекс.Карты по адресу — виджет и маршрут не требуют ключа. */
+function mapUrl(address) {
+  return `https://yandex.ru/map-widget/v1/?text=${encodeURIComponent(address)}&z=16`;
+}
+
+function routeUrl(address) {
+  return `https://yandex.ru/maps/?rtext=~${encodeURIComponent(address)}&rtt=auto`;
 }
 
 function featuresFor(club) {
@@ -117,7 +124,7 @@ function ClubPage() {
     );
   }
 
-  const photos = galleryFor(club.name);
+  const photos = GALLERY;
   const features = featuresFor(club);
   const trainers = trainersByClub[club.id] || trainersByClub.default;
   const workoutTypes = workoutTypesQuery.data || [];
@@ -182,17 +189,14 @@ function ClubPage() {
                     →
                   </button>
                 </div>
-                {photos[photoIndex].src ? (
-                  <img
-                    src={photos[photoIndex].src}
-                    alt={photos[photoIndex].label}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-slate-300">
-                    {photos[photoIndex].label} (заглушка)
-                  </div>
-                )}
+                <img
+                  src={photos[photoIndex].src}
+                  alt={`${photos[photoIndex].label} — ${club.name}`}
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute bottom-4 left-4 rounded-full bg-[#0A0B10]/70 px-3 py-1.5 text-xs text-slate-200 backdrop-blur">
+                  {photos[photoIndex].label}
+                </div>
               </div>
               <div className="mt-4 flex w-full items-center justify-center gap-2">
                 {photos.map((photo, index) => (
@@ -249,13 +253,16 @@ function ClubPage() {
           <h2 className="text-2xl font-semibold">Тренеры</h2>
           <div className="mt-6 flex gap-6 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {trainers.map((trainer) => (
-              <div key={trainer.id} className="shrink-0">
-                <div className="h-56 w-52 overflow-hidden rounded-3xl bg-[#f2d7a1] shadow-sm">
-                  <div className="h-full w-full bg-gradient-to-br from-[#f4d6a0] via-[#f6deb5] to-[#eec786]" />
+              <div key={trainer.id} className="w-52 shrink-0">
+                <div className="flex h-56 w-52 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-[#f4d6a0] via-[#f6deb5] to-[#eec786] shadow-sm">
+                  <span className="text-5xl font-black text-[#8a6a2f]/70">
+                    {initials(trainer.name)}
+                  </span>
                 </div>
                 <div className="mt-3 text-sm font-semibold text-slate-100">
                   {trainer.name}
                 </div>
+                <div className="text-xs text-slate-400">{trainer.role}</div>
               </div>
             ))}
           </div>
@@ -332,19 +339,30 @@ function ClubPage() {
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <button className="rounded-full border border-[#9D50BB]/40 bg-white/5 px-4 py-2 text-sm font-semibold text-[#9D50BB] transition hover:bg-[#9D50BB]/15">
+                <a
+                  href={routeUrl(club.address)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border border-[#9D50BB]/40 bg-white/5 px-4 py-2 text-sm font-semibold text-[#9D50BB] transition hover:bg-[#9D50BB]/15"
+                >
                   Проложить маршрут
-                </button>
-                <button className="rounded-full bg-[#9D50BB] px-4 py-2 text-sm font-semibold text-white shadow-[0_0_18px_rgba(157,80,187,0.45)] transition hover:shadow-[0_0_26px_rgba(157,80,187,0.6)]">
+                </a>
+                <a
+                  href={`tel:${club.phone.replace(/[^+\d]/g, "")}`}
+                  className="rounded-full bg-[#9D50BB] px-4 py-2 text-sm font-semibold text-white shadow-[0_0_18px_rgba(157,80,187,0.45)] transition hover:shadow-[0_0_26px_rgba(157,80,187,0.6)]"
+                >
                   Позвонить
-                </button>
+                </a>
               </div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#1f2330] via-[#0f1118] to-[#2d2550] p-4">
-              <div className="flex h-full min-h-[260px] items-center justify-center rounded-2xl border border-white/10 bg-[#0A0B10]/40 text-sm text-slate-400">
-                Карта (заглушка)
-              </div>
+              <iframe
+                title={`Карта: ${club.name}`}
+                src={mapUrl(club.address)}
+                loading="lazy"
+                className="h-full min-h-[260px] w-full rounded-2xl border border-white/10"
+              />
             </div>
           </div>
         </section>
