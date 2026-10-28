@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { clubsApi } from "../api/clubs";
@@ -6,18 +6,16 @@ import { membershipsApi } from "../api/memberships";
 import { useApiMutation } from "../hooks/useApiMutation";
 import { useApiQuery } from "../hooks/useApiQuery";
 import { useAuth } from "../hooks/useAuth";
+import { useSnapSlider } from "../hooks/useSnapSlider";
 import MembershipCard from "./MembershipCard";
 import PlanPurchaseDialog from "./PlanPurchaseDialog";
 import QueryState from "./QueryState";
 import { toPlanCards } from "./planPresentation";
 
-// Карточка (360px) + gap (24px): на столько листает слайдер за один клик.
-const SLIDE_STEP = 384;
-
 function MembershipSlide({ embedded = false }) {
   const navigate = useNavigate();
   const { isAuthenticated, isClient } = useAuth();
-  const tariffsSliderRef = useRef(null);
+  const { trackRef: tariffsSliderRef, slide: slideTariffs } = useSnapSlider();
 
   const [pendingPlan, setPendingPlan] = useState(null);
   const [purchasedPlanId, setPurchasedPlanId] = useState(null);
@@ -29,13 +27,6 @@ function MembershipSlide({ embedded = false }) {
   });
 
   const purchase = useApiMutation(membershipsApi.create);
-
-  const slideTariffs = (direction) => {
-    tariffsSliderRef.current?.scrollBy({
-      left: direction * SLIDE_STEP,
-      behavior: "smooth",
-    });
-  };
 
   const buy = useCallback(
     async (planId, clubId) => {
