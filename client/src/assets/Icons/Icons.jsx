@@ -98,12 +98,8 @@ const TwoStory = ({ className = "w-6 h-6" }) => (
   <svg
     className={className}
     fill="currentColor"
-    version="1.1"
-    id="Layer_1"
     xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
     viewBox="0 0 512 512"
-    xml:space="preserve"
   >
     <g>
       <g>
