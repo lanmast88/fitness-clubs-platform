@@ -1,37 +1,73 @@
+# Окружение для разработки: исходники примонтированы, код перезагружается на лету.
+# Образ backend при этом тот же, что уедет в прод, — отличается только команда.
+
 services:
   db:
     image: postgres:16-alpine
-    restart: always
-    env_file: .env
+    restart: unless-stopped
+    # Postgres-у нужны только его собственные переменные, а не весь .env
+    # с SECRET_KEY и настройками Django.
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "${POSTGRES_PUBLISHED_PORT:-5433}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
-  web:
-    build: ./backend
-    restart: always
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
     env_file: .env
+    environment:
+      # Внутри сети compose база доступна по имени сервиса.
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
     ports:
-      - "8000:8000"
+      - "${BACKEND_PUBLISHED_PORT:-8000}:8000"
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      # Статику, собранную в образе, бинд-маунт исходников не должен затирать.
+      - /app/staticfiles
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/api/v1/clubs/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - "3000:3000"
+  frontend:
+    image: node:22-slim
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      VITE_API_URL: http://localhost:${BACKEND_PUBLISHED_PORT:-8000}/api/v1
+    ports:
+      - "${FRONTEND_PUBLISHED_PORT:-5173}:5173"
+    depends_on:
+      backend:
+        condition: service_started
+    volumes:
+      - ./client:/app
+      # Анонимный том: зависимости ставятся под Linux и не конфликтуют
+      # с node_modules, собранными на хосте.
+      - /app/node_modules
+    command: >
+      sh -c "npm ci &&
+             npm run dev -- --host 0.0.0.0 --port 5173"
 
 volumes:
   postgres_data:
