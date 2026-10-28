@@ -4,7 +4,24 @@ from rest_framework import serializers
 from .models import User
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class NormalizePhoneMixin:
+    """
+    Приводит пустой телефон к NULL.
+
+    Телефон необязателен и при этом уникален. DRF для CharField на пустой
+    строке делает ранний выход из run_validation и не запускает валидаторы
+    поля — UniqueValidator не срабатывает, и второй пользователь с phone=''
+    доходит до БД и падает с IntegrityError (500 вместо 400).
+
+    Пустое значение означает «телефон не указан», поэтому сохраняем NULL:
+    он не конфликтует с unique-ограничением.
+    """
+
+    def validate_phone(self, value):
+        return value or None
+
+
+class RegisterSerializer(NormalizePhoneMixin, serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,
         validators=[validate_password]
@@ -18,7 +35,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(NormalizePhoneMixin, serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'phone', 'role', 'created_at']
