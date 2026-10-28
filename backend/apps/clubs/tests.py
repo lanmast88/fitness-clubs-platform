@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -220,6 +221,16 @@ class ClubScheduleTests(APITestCase):
         self.assertIn('duration', session)
         self.assertIn('capacity', session)
         self.assertIn('spots_left', session)
+
+    def test_schedule_returns_iso_datetimes(self):
+        response = self.client.get(club_schedule_url(self.club.id, self.today_str))
+
+        session = response.data[0]
+        self.assertEqual(
+            parse_datetime(session['start_ts']),
+            WorkoutSession.objects.get(pk=session['id']).start_ts,
+        )
+        self.assertIsNotNone(parse_datetime(session['end_ts']))
 
     def test_schedule_wrong_club_returns_404(self):
         response = self.client.get(club_schedule_url(99999, self.today_str))
