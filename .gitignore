@@ -1,5 +1,10 @@
 node_modules/
 
+# Playwright
+playwright-report/
+test-results/
+/client/.playwright-cache/
+
 # Python
 __pycache__/
 *.pyc
@@ -12,10 +17,12 @@ __pycache__/
 .venv/
 
 # Django
-*.sqlite3
 debug.log
 staticfiles/
 media/
+
+# Сборка фронтенда — артефакт vite, его делает CI и devcontainer
+/client/dist/
 
 # Env файлы
 .env
@@ -24,11 +31,17 @@ media/
 
 # IDE
 .idea/
-.vscode/
 *.swp
-
-# Docker
-.dockerignore
+# Личные настройки редактора — локальные, а задачи и конфиги отладки
+# общие: они часть окружения разработки вместе с .devcontainer/.
+# Негативные шаблоны работают только если каталог не исключён целиком,
+# поэтому здесь .vscode/* , а не .vscode/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
 
 # macOS
 .DS_Store
+
+# gunicorn control socket
+gunicorn.ctl

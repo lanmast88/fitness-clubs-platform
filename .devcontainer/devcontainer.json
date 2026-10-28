@@ -1,0 +1,86 @@
+{
+  "name": "fitness-clubs-platform",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/fitness-clubs-platform",
+  "remoteUser": "vscode",
+  // Закрыли окно — остановился и контейнер, и база. Тома остаются.
+  "shutdownAction": "stopCompose",
+
+  // Node ставим фичей, а не вручную: версия та же, что в CI
+  // (.github/workflows/ci.yml). Точный digest фичи пригвождён
+  // в devcontainer-lock.json — его тоже держим в репозитории.
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    }
+  },
+
+  // Зависимости — отдельным шагом от бутстрапа базы: updateContentCommand
+  // переживает prebuild и повторяется при обновлении исходников,
+  // postCreateCommand требует живого сервиса db.
+  "updateContentCommand": "bash .devcontainer/install-deps.sh",
+  "postCreateCommand": "bash .devcontainer/bootstrap-db.sh",
+
+  "forwardPorts": [8000, 5173, 4173],
+  "portsAttributes": {
+    "8000": { "label": "Django API", "onAutoForward": "notify" },
+    "5173": { "label": "Vite dev", "onAutoForward": "openPreview" },
+    "4173": { "label": "Vite preview (E2E)", "onAutoForward": "silent" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "charliermarsh.ruff",
+        "batisteo.vscode-django",
+        "tamasfe.even-better-toml",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+        "ms-playwright.playwright",
+        "github.vscode-github-actions"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "${containerWorkspaceFolder}/backend/.venv/bin/python",
+        // Венв активирует uv, терминалу это делать не нужно.
+        "python.terminal.activateEnvironment": false,
+        // Редактор линтует проектным ruff из uv.lock, а не версией,
+        // вшитой в расширение, — иначе диагностика расходится с CI.
+        "ruff.path": ["${containerWorkspaceFolder}/backend/.venv/bin/ruff"],
+        // eslint.config.js лежит в client/, из корня репозитория линтер его не найдёт.
+        "eslint.workingDirectories": ["client"],
+        "playwright.env": {
+          "E2E_BASE_URL": "http://127.0.0.1:4173"
+        },
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/.ruff_cache": true
+        },
+        // Каталоги зависимостей и сборки — вне файлового наблюдателя и поиска:
+        // на bind-маунте macOS их обход заметно греет процессор.
+        "files.watcherExclude": {
+          "**/.venv/**": true,
+          "**/node_modules/**": true,
+          "**/staticfiles/**": true,
+          "**/dist/**": true,
+          "**/playwright-report/**": true,
+          "**/test-results/**": true
+        },
+        "search.exclude": {
+          "**/.venv": true,
+          "**/node_modules": true,
+          "**/staticfiles": true,
+          "**/dist": true,
+          "**/playwright-report": true,
+          "**/test-results": true,
+          "**/package-lock.json": true,
+          "**/uv.lock": true
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
+    }
+  }
+}

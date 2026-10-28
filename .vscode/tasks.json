@@ -1,0 +1,116 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Серверы: бэкенд + фронтенд",
+      "detail": "Поднимает оба dev-сервера параллельно: API на 8000, Vite на 5173",
+      "dependsOrder": "parallel",
+      "dependsOn": ["Бэкенд: dev-сервер", "Фронтенд: dev-сервер"],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Проверки: как в CI",
+      "detail": "ruff → тесты Django → ESLint → сборка фронтенда, последовательно",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Бэкенд: ruff",
+        "Бэкенд: незакоммиченные миграции",
+        "Бэкенд: тесты",
+        "Фронтенд: ESLint",
+        "Фронтенд: сборка"
+      ],
+      "problemMatcher": []
+    },
+
+    {
+      "label": "Бэкенд: dev-сервер",
+      "detail": "runserver на 0.0.0.0:8000 — порт форвардится на хост",
+      "type": "shell",
+      "command": "uv run python manage.py runserver 0.0.0.0:8000",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "group": "servers", "panel": "dedicated" }
+    },
+    {
+      "label": "Бэкенд: тесты",
+      "type": "shell",
+      "command": "uv run python manage.py test --verbosity 2",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Бэкенд: ruff",
+      "type": "shell",
+      "command": "uv run ruff check .",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Бэкенд: миграции",
+      "type": "shell",
+      "command": "uv run python manage.py migrate",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Бэкенд: незакоммиченные миграции",
+      "detail": "makemigrations --check: падает, если модели изменены без миграции",
+      "type": "shell",
+      "command": "uv run python manage.py makemigrations --check --dry-run",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Бэкенд: демо-данные",
+      "detail": "seed_demo — идемпотентно, учётки admin/trainer из README",
+      "type": "shell",
+      "command": "uv run python manage.py seed_demo",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Бэкенд: пересобрать requirements.txt",
+      "detail": "Артефакт из uv.lock для сборки образа; CI падает, если он разошёлся",
+      "type": "shell",
+      "command": "uv export --no-dev --frozen --no-emit-project --no-hashes -o requirements.txt",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "Фронтенд: dev-сервер",
+      "detail": "Vite на 0.0.0.0:5173 — порт форвардится на хост",
+      "type": "shell",
+      "command": "npm run dev -- --host 0.0.0.0",
+      "options": { "cwd": "${workspaceFolder}/client" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "group": "servers", "panel": "dedicated" }
+    },
+    {
+      "label": "Фронтенд: ESLint",
+      "type": "shell",
+      "command": "npm run lint",
+      "options": { "cwd": "${workspaceFolder}/client" },
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "Фронтенд: сборка",
+      "type": "shell",
+      "command": "npm run build",
+      "options": { "cwd": "${workspaceFolder}/client" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Фронтенд: E2E",
+      "detail": "Playwright; нужен поднятый бэкенд с демо-данными, preview поднимется сам",
+      "type": "shell",
+      "command": "npm run test:e2e",
+      "options": { "cwd": "${workspaceFolder}/client" },
+      "problemMatcher": []
+    }
+  ]
+}
