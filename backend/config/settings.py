@@ -11,7 +11,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG')
+# cast=bool обязателен: без него из .env приходит строка, и 'False' — истина.
+DEBUG = config('DEBUG', default=False, cast=bool)
+
 
 def csv_list(value):
     """Разбирает список, заданный в .env через запятую, отбрасывая пустые элементы."""

@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import { clubsApi } from "../api/clubs";
 import { useApiQuery } from "../hooks/useApiQuery";
@@ -13,11 +13,25 @@ const navLinks = [
   { name: "FAQ", linkTo: "/faq" },
 ];
 
+const NAV_BASE =
+  "relative py-1 transition after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-[#9D50BB] after:transition-transform after:duration-200";
+const NAV_ACTIVE = "text-[#9D50BB] after:scale-x-100";
+const NAV_IDLE = "text-slate-200 hover:text-[#9D50BB] after:scale-x-0";
+
+function navClass({ isActive }) {
+  return `${NAV_BASE} ${isActive ? NAV_ACTIVE : NAV_IDLE}`;
+}
+
 function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, user, logout } = useAuth();
   const clubsQuery = useApiQuery((signal) => clubsApi.list({ signal }), []);
   const clubs = clubsQuery.data || [];
+
+  // Выпадающий список — не NavLink, поэтому активность считаем сами:
+  // подсветка нужна на любой странице клуба.
+  const clubsActive = location.pathname.startsWith("/clubs");
 
   const scrollToTop = () => window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 
@@ -38,13 +52,14 @@ function Header() {
           <span className="text-lg font-semibold tracking-wide">Stack Fitness</span>
         </NavLink>
 
-        <ul className="hidden items-center gap-6 text-sm font-medium text-slate-200 md:flex">
+        <ul className="hidden items-center gap-6 text-sm font-medium md:flex">
           <li className="relative group">
             <button
               type="button"
-              className="transition hover:text-[#9D50BB]"
+              className={`${NAV_BASE} ${clubsActive ? NAV_ACTIVE : NAV_IDLE}`}
               aria-haspopup="true"
               aria-expanded="false"
+              aria-current={clubsActive ? "page" : undefined}
             >
               Клубы
             </button>
@@ -60,7 +75,13 @@ function Header() {
                   key={club.id}
                   to={`/clubs/${club.id}`}
                   onClick={scrollToTop}
-                  className="block rounded-xl px-3 py-2 text-sm text-slate-200 transition hover:bg-[#9D50BB]/15 hover:text-[#9D50BB]"
+                  className={({ isActive }) =>
+                    `block rounded-xl px-3 py-2 text-sm transition ${
+                      isActive
+                        ? "bg-[#9D50BB]/20 text-[#9D50BB]"
+                        : "text-slate-200 hover:bg-[#9D50BB]/15 hover:text-[#9D50BB]"
+                    }`
+                  }
                 >
                   <div className="font-semibold">{club.name}</div>
                   <div className="text-xs text-slate-400">{club.address}</div>
@@ -68,56 +89,61 @@ function Header() {
               ))}
             </div>
           </li>
+
           {navLinks.map((link) => (
-            <NavLink
-              key={link.linkTo}
-              to={link.linkTo}
-              onClick={scrollToTop}
-              className="transition hover:text-[#9D50BB]"
-            >
-              {link.name}
-            </NavLink>
+            <li key={link.linkTo}>
+              <NavLink to={link.linkTo} onClick={scrollToTop} className={navClass}>
+                {link.name}
+              </NavLink>
+            </li>
           ))}
         </ul>
 
-        <div className="flex items-center gap-3">
-          {isAuthenticated ? (
-            <>
-              <NavLink
-                to="/account"
-                onClick={scrollToTop}
-                className="hidden max-w-[180px] truncate text-sm text-slate-300 transition hover:text-[#9D50BB] sm:block"
-                title={user?.email}
-              >
-                {user?.email}
-              </NavLink>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
-              >
-                Выйти
-              </button>
-            </>
-          ) : (
-            <>
-              <NavLink
-                to="/login"
-                onClick={scrollToTop}
-                className="text-sm font-medium text-slate-200 transition hover:text-[#9D50BB]"
-              >
-                Войти
-              </NavLink>
-              <NavLink
-                to="/registration"
-                onClick={scrollToTop}
-                className="rounded-full bg-[#9D50BB] px-4 py-2 text-sm font-semibold text-white shadow-[0_0_18px_rgba(157,80,187,0.45)] transition hover:shadow-[0_0_26px_rgba(157,80,187,0.6)]"
-              >
-                Записаться
-              </NavLink>
-            </>
-          )}
-        </div>
+        {isAuthenticated ? (
+          <div className="flex items-center gap-2">
+            <NavLink
+              to="/account"
+              onClick={scrollToTop}
+              title={user?.email}
+              className={({ isActive }) =>
+                `flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-4 text-sm font-medium transition ${
+                  isActive
+                    ? "bg-[#9D50BB]/20 text-[#9D50BB]"
+                    : "text-slate-200 hover:bg-white/10"
+                }`
+              }
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#9D50BB] text-xs font-bold uppercase text-white">
+                {user?.email?.[0]}
+              </span>
+              Кабинет
+            </NavLink>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-full px-3 py-2 text-sm text-slate-400 transition hover:text-rose-300"
+            >
+              Выйти
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <NavLink
+              to="/login"
+              onClick={scrollToTop}
+              className="rounded-full border border-white/15 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-[#9D50BB]/50 hover:text-[#9D50BB]"
+            >
+              Войти
+            </NavLink>
+            <NavLink
+              to="/registration"
+              onClick={scrollToTop}
+              className="rounded-full bg-[#9D50BB] px-4 py-2 text-sm font-semibold text-white shadow-[0_0_18px_rgba(157,80,187,0.45)] transition hover:shadow-[0_0_26px_rgba(157,80,187,0.6)]"
+            >
+              Регистрация
+            </NavLink>
+          </div>
+        )}
       </nav>
     </header>
   );

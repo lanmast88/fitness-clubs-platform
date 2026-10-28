@@ -1,5 +1,5 @@
-import { useRef } from "react";
 import { promoes } from "../components/promo";
+import { useSnapSlider } from "../hooks/useSnapSlider";
 
 import Header from "../components/Header";
 import MembershipSlide from "../components/MembershipsSlide";
@@ -26,14 +26,7 @@ const halls = [
 ];
 
 function MainPage() {
-  const promoSliderRef = useRef(null);
-  const slidePromos = (direction) => {
-    if (!promoSliderRef.current) return;
-    promoSliderRef.current.scrollBy({
-      left: direction * 360,
-      behavior: "smooth",
-    });
-  };
+  const { trackRef: promoSliderRef, slide: slidePromos } = useSnapSlider();
 
   return (
     <div className="min-h-screen bg-[#0A0B10] text-slate-100">
