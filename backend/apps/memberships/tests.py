@@ -184,6 +184,18 @@ class MembershipCreateTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_membership_returns_read_representation(self):
+        plan = create_plan(slug='network', scope=MembershipPlan.Scope.NETWORK)
+
+        response = self.client.post(MEMBERSHIPS_URL, {'plan': plan.id}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['id'], Membership.objects.first().id)
+        self.assertEqual(response.data['plan']['slug'], plan.slug)
+        self.assertEqual(response.data['status'], Membership.Status.ACTIVE)
+        self.assertIn('start_date', response.data)
+        self.assertIn('end_date', response.data)
+
     def test_create_club_membership_without_club_fails(self):
         plan = create_plan(slug='club', scope=MembershipPlan.Scope.CLUB)
         payload = {'plan': plan.id}

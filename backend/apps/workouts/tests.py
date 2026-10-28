@@ -329,6 +329,15 @@ class PersonalTrainingTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_pt_returns_read_representation(self):
+        response = self.client.post(PERSONAL_URL, self.payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['id'], PersonalTraining.objects.first().id)
+        self.assertEqual(response.data['trainer']['id'], self.trainer.id)
+        self.assertEqual(response.data['client'], self.user.id)
+        self.assertEqual(response.data['status'], PersonalTraining.Status.SCHEDULED)
+
     def test_create_pt_self_fails(self):
         self.client.force_authenticate(user=self.trainer)
         payload = {**self.payload, 'trainer': self.trainer.id}

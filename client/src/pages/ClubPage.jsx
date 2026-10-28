@@ -1,8 +1,13 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
+
+import { clubsApi } from "../api/clubs";
+import { workoutsApi } from "../api/workouts";
+import ClubSchedule from "../components/ClubSchedule";
 import Header from "../components/Header";
-import { clubs } from "../components/clubs";
+import QueryState from "../components/QueryState";
 import { trainersByClub } from "../components/trainers";
+import { useApiQuery } from "../hooks/useApiQuery";
 import {
   GroupTraining,
   Parking,
@@ -11,24 +16,26 @@ import {
   WorkHours,
 } from "../assets/Icons/Icons";
 
-function ClubPage() {
-  const { id } = useParams();
-  const club = clubs.find((item) => String(item.id) === String(id));
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const [selectedDay, setSelectedDay] = useState(() => new Date().getDate());
+const GALLERIES = {
+  Авиапарк: [
+    { id: 1, label: "Зал Авиапарк 1", src: "/aviapark_1.png" },
+    { id: 2, label: "Зал Авиапарк 2", src: "/aviapark_2.jpg" },
+    { id: 3, label: "Зал Авиапарк 3", src: "/aviapark_3.jpg" },
+  ],
+};
 
-  const photos = club.name.includes("Авиапарк")
-    ? [
-        { id: 1, label: "Зал Авиапарк 1", src: "/aviapark_1.png" },
-        { id: 2, label: "Зал Авиапарк 2", src: "/aviapark_2.jpg" },
-        { id: 3, label: "Зал Авиапарк 3", src: "/aviapark_3.jpg" },
-      ]
-    : [
-        { id: 1, label: "Фото зала 1", src: "" },
-        { id: 2, label: "Фото зала 2", src: "" },
-        { id: 3, label: "Фото зала 3", src: "" },
-      ];
+const DEFAULT_GALLERY = [
+  { id: 1, label: "Фото зала 1", src: "" },
+  { id: 2, label: "Фото зала 2", src: "" },
+  { id: 3, label: "Фото зала 3", src: "" },
+];
 
+function galleryFor(clubName) {
+  const key = Object.keys(GALLERIES).find((name) => clubName.includes(name));
+  return key ? GALLERIES[key] : DEFAULT_GALLERY;
+}
+
+function featuresFor(club) {
   const features = [
     {
       key: "group",
@@ -55,53 +62,65 @@ function ClubPage() {
       icon: <SpaZone className="h-6 w-6 text-fuchsia-200" />,
     },
   ];
+
   if (club.name.includes("Маяковская") || club.name.includes("Авиапарк")) {
-    features.push({
-      key: "twostory",
-      title: "Двухэтажный зал",
-      description: "Больше пространства для тренировок.",
-      icon: <TwoStory className="h-6 w-6 text-amber-200" />,
-    });
-    features.push({
-      key: "modern",
-      title: "Современное оборудование",
-      description: "Новые тренажеры и свободные веса.",
-      icon: <GroupTraining className="h-6 w-6 text-indigo-200" />,
-    });
-  }
-
-  const trainers = trainersByClub[club.id] || trainersByClub.default;
-
-  const dayCards = useMemo(() => {
-    const cards = [];
-    for (let offset = -3; offset <= 5; offset += 1) {
-      const date = new Date();
-      date.setDate(date.getDate() + offset);
-      const dayLabel = date
-        .toLocaleDateString("ru-RU", { weekday: "short" })
-        .replace(".", "");
-      cards.push({
-        key: date.toDateString(),
-        day: dayLabel,
-        date: date.getDate(),
-      });
-    }
-    return cards;
-  }, []);
-
-  if (!club) {
-    return (
-      <div className="min-h-screen bg-[#0A0B10] text-slate-100">
-        <Header />
-        <main className="mx-auto max-w-6xl px-4 pt-6 pb-12 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold">Клуб не найден</h1>
-          <p className="mt-2 text-slate-300">
-            Проверьте ссылку или выберите клуб из меню.
-          </p>
-        </main>
-      </div>
+    features.push(
+      {
+        key: "twostory",
+        title: "Двухэтажный зал",
+        description: "Больше пространства для тренировок.",
+        icon: <TwoStory className="h-6 w-6 text-amber-200" />,
+      },
+      {
+        key: "modern",
+        title: "Современное оборудование",
+        description: "Новые тренажеры и свободные веса.",
+        icon: <GroupTraining className="h-6 w-6 text-indigo-200" />,
+      },
     );
   }
+
+  return features;
+}
+
+function ClubPageLayout({ children }) {
+  return (
+    <div className="min-h-screen bg-[#0A0B10] text-slate-100">
+      <Header />
+      <main className="mx-auto max-w-6xl px-4 pt-6 pb-12 sm:px-6 lg:px-8">{children}</main>
+    </div>
+  );
+}
+
+function ClubPage() {
+  const { id } = useParams();
+  const [photoIndex, setPhotoIndex] = useState(0);
+
+  const clubQuery = useApiQuery((signal) => clubsApi.retrieve(id, { signal }), [id]);
+  const workoutTypesQuery = useApiQuery((signal) => workoutsApi.types({ signal }), []);
+
+  const club = clubQuery.data;
+
+  if (clubQuery.loading || clubQuery.error || !club) {
+    return (
+      <ClubPageLayout>
+        <QueryState
+          loading={clubQuery.loading}
+          error={clubQuery.error}
+          isEmpty={!club}
+          emptyText="Клуб не найден. Проверьте ссылку или выберите клуб из меню."
+          onRetry={clubQuery.reload}
+        >
+          {null}
+        </QueryState>
+      </ClubPageLayout>
+    );
+  }
+
+  const photos = galleryFor(club.name);
+  const features = featuresFor(club);
+  const trainers = trainersByClub[club.id] || trainersByClub.default;
+  const workoutTypes = workoutTypesQuery.data || [];
 
   return (
     <div className="min-h-screen bg-[#0A0B10] text-slate-100">
@@ -196,117 +215,32 @@ function ClubPage() {
 
         <section className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
           <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-            <div>
-              <h2 className="text-2xl font-semibold">Расписание занятий</h2>
-              <div className="mt-4 overflow-x-auto">
-                <div className="inline-flex items-center gap-3 rounded-2xl bg-white/10 p-2">
-                  {dayCards.map((day) => (
-                    <button
-                      key={day.key}
-                      type="button"
-                      onClick={() => setSelectedDay(day.date)}
-                      className={`flex w-16 flex-col items-center gap-1 rounded-2xl px-2 py-2 text-sm transition ${
-                        selectedDay === day.date
-                          ? "bg-[#9D50BB] text-white shadow-[0_0_16px_rgba(157,80,187,0.6)]"
-                          : "text-slate-300 hover:bg-white/10"
-                      }`}
-                    >
-                      <span className="text-xs uppercase text-slate-400">
-                        {day.day}
-                      </span>
-                      <span className="text-lg font-semibold">{day.date}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6 rounded-2xl border border-white/10 bg-[#0A0B10]/60 p-4">
-                {[
-                  {
-                    time: "10:00",
-                    duration: "45 мин",
-                    name: "Здоровая спина 45",
-                    coach: "Артем Селиванов",
-                  },
-                  {
-                    time: "10:00",
-                    duration: "30 мин",
-                    name: "Smart Start",
-                    coach: "Рамиль Юсеев",
-                  },
-                  {
-                    time: "11:00",
-                    duration: "45 мин",
-                    name: "Stack ATHLETIC 45",
-                    coach: "Артем Селиванов",
-                  },
-                  {
-                    time: "10:00",
-                    duration: "45 мин",
-                    name: "Здоровая спина 45",
-                    coach: "Артем Селиванов",
-                  },
-                ].map((session) => (
-                  <div
-                    key={`${session.time}-${session.name}`}
-                    className="flex items-start justify-between gap-4 border-b border-white/10 py-4 last:border-b-0"
-                  >
-                    <div className="w-24">
-                      <div className="text-lg font-semibold text-white">
-                        {session.time}
-                      </div>
-                      <div className="text-sm text-slate-400">
-                        {session.duration}
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-lg font-semibold text-white">
-                        {session.name}
-                      </div>
-                      <div className="text-sm text-slate-400">
-                        {session.coach}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ClubSchedule clubId={club.id} />
 
             <div className="rounded-3xl border border-white/10 bg-[#0A0B10]/60 p-6">
               <h2 className="text-2xl font-semibold">Групповые тренировки</h2>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {[
-                  "Stack PUMP",
-                  "Smart Start",
-                  "Lady Style 45",
-                  "Школа шпагата 45",
-                  "Stack CORE",
-                  "Stack ATHLETIC 45",
-                  "3D Ягодицы 45",
-                  "Здоровая спина 45",
-                  "Stretching 45",
-                  "Stack COMBAT",
-                  "Yoga",
-                  "Stack Balance",
-                  "Step pro 45",
-                  "Stack Pilates",
-                  "Inside Flow Yoga 90",
-                  "Stack Party",
-                  "MAKE BODY 45",
-                  "Social Dance",
-                  "Step basic 45",
-                  "FT (Functional Training) 45",
-                  "Pilates Mat 45",
-                  "Zumba 45",
-                ].map((title) => (
-                  <div
-                    key={title}
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-[#9D50BB] transition hover:border-[#9D50BB]/40 hover:bg-white/10"
-                  >
-                    {title}
-                  </div>
-                ))}
-              </div>
+              <QueryState
+                loading={workoutTypesQuery.loading}
+                error={workoutTypesQuery.error}
+                isEmpty={workoutTypes.length === 0}
+                emptyText="Направления пока не добавлены."
+                onRetry={workoutTypesQuery.reload}
+              >
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  {workoutTypes.map((type) => (
+                    <div
+                      key={type.id}
+                      className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-[#9D50BB] transition hover:border-[#9D50BB]/40 hover:bg-white/10"
+                      title={type.description}
+                    >
+                      {type.title}
+                      <span className="ml-1 text-xs font-normal text-slate-400">
+                        {type.default_duration} мин
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </QueryState>
             </div>
           </div>
         </section>
@@ -368,7 +302,7 @@ function ClubPage() {
                 </div>
                 <div>
                   <div className="font-semibold text-white">Телефон</div>
-                  <div className="text-white">+7 (495) 255-50-00</div>
+                  <div className="text-white">{club.phone}</div>
                 </div>
               </div>
 
@@ -393,8 +327,7 @@ function ClubPage() {
                 </div>
                 <div>
                   <div className="font-semibold text-white">Режим работы</div>
-                  <div>Ежедневно с 6 до 24</div>
-                  <div>Работа ресепшен с 10 до 22</div>
+                  <div>{club.timezone}</div>
                 </div>
               </div>
 

@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from apps.common.mixins import CreateWithReadSerializerMixin
 from apps.users.permissions import IsClient
 from .models import Membership, MembershipPlan
 from .serializers import (
@@ -30,6 +31,7 @@ class MembershipPlanViewSet(
 
 
 class MembershipViewSet(
+    CreateWithReadSerializerMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
@@ -44,6 +46,8 @@ class MembershipViewSet(
     freeze:   POST /api/v1/memberships/{id}/freeze/
     cancel:   POST /api/v1/memberships/{id}/cancel/
     """
+
+    read_serializer_class = MembershipSerializer
 
     def get_permissions(self):
         if self.action in ['create', 'freeze', 'cancel']:

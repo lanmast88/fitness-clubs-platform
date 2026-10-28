@@ -1,9 +1,17 @@
 import { useState } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+
 import Header from "../components/Header";
+import { useApiMutation } from "../hooks/useApiMutation";
+import { useAuth } from "../hooks/useAuth";
 
 const logo = "/logo.png";
 
 const RegistrationForm = () => {
+  const navigate = useNavigate();
+  const { register, isAuthenticated } = useAuth();
+  const signUp = useApiMutation(register);
+
   const [formValues, setFormValues] = useState({
     email: "",
     phone: "",
@@ -65,11 +73,29 @@ const RegistrationForm = () => {
     return nextErrors;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
     const nextErrors = validate();
     setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    try {
+      await signUp.run({
+        email: formValues.email.trim(),
+        password: formValues.password,
+        phone: formValues.phone.trim(),
+      });
+      navigate("/account", { replace: true });
+    } catch (error) {
+      // Ошибки полей от сервера (занятая почта, слабый пароль) показываем у полей.
+      setErrors(error.fieldErrors || {});
+    }
   };
+
+  if (isAuthenticated && !signUp.loading) {
+    return <Navigate to="/account" replace />;
+  }
 
   return (
     <section className="min-h-screen h-full bg-[#0A0B10] text-slate-100">
@@ -102,6 +128,7 @@ const RegistrationForm = () => {
             <div className="w-full max-w-md rounded-[28px] bg-gradient-to-br from-white/15 via-white/5 to-white/0 p-[1px] shadow-[0_16px_30px_rgba(0,0,0,0.35)]">
               <form
                 onSubmit={handleSubmit}
+                noValidate
                 className="flex w-full flex-col gap-5 rounded-[27px] border border-white/10 bg-[#0F1118]/80 p-6 text-left"
               >
                 <div>
@@ -212,12 +239,24 @@ const RegistrationForm = () => {
                   </span>
                 )}
 
+                {signUp.error && !signUp.error.fieldErrors?.email && (
+                  <span className="text-xs text-rose-300">{signUp.error.message}</span>
+                )}
+
                 <button
                   type="submit"
-                  className="mt-2 cursor-pointer rounded-2xl bg-[#9D50BB] px-6 py-3 text-sm font-semibold text-white shadow-[0_0_22px_rgba(157,80,187,0.5)] transition hover:shadow-[0_0_30px_rgba(157,80,187,0.7)]"
+                  disabled={signUp.loading}
+                  className="mt-2 cursor-pointer rounded-2xl bg-[#9D50BB] px-6 py-3 text-sm font-semibold text-white shadow-[0_0_22px_rgba(157,80,187,0.5)] transition hover:shadow-[0_0_30px_rgba(157,80,187,0.7)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Отправить заявку
+                  {signUp.loading ? "Создаём аккаунт…" : "Создать аккаунт"}
                 </button>
+
+                <div className="text-xs text-slate-400">
+                  Уже есть аккаунт?{" "}
+                  <Link to="/login" className="text-[#9D50BB] hover:underline">
+                    Войти
+                  </Link>
+                </div>
 
                 <div className="text-xs text-slate-500">
                   Мы не передаем данные третьим лицам.

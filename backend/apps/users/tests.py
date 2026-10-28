@@ -52,6 +52,23 @@ class RegisterTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_register_blank_phone_is_stored_as_null(self):
+        payload = {'email': 'blank@test.com', 'password': TEST_PASSWORD, 'phone': ''}
+
+        response = self.client.post(REGISTER_URL, payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIsNone(response.data['user']['phone'])
+
+    def test_register_blank_phone_twice(self):
+        """Пустой телефон не значение, а его отсутствие — unique не должен мешать."""
+        create_user(email='first@test.com', phone='')
+        payload = {'email': 'second@test.com', 'password': TEST_PASSWORD, 'phone': ''}
+
+        response = self.client.post(REGISTER_URL, payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_register_duplicate_email(self):
         create_user()
         payload = {'email': 'test@test.com', 'password': TEST_PASSWORD}
@@ -202,6 +219,22 @@ class MeTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['phone'], '+70000000000')
+
+    def test_clear_phone_with_blank_value(self):
+        self.client.patch(ME_URL, {'phone': '+70000000000'}, format='json')
+
+        response = self.client.patch(ME_URL, {'phone': ''}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data['phone'])
+
+    def test_clear_phone_when_another_user_has_none(self):
+        create_user(email='other@test.com', phone='')
+
+        response = self.client.patch(ME_URL, {'phone': ''}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data['phone'])
 
     def test_cannot_update_email(self):
         response = self.client.patch(ME_URL, {'email': 'new@test.com'}, format='json')

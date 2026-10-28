@@ -41,8 +41,11 @@ class ScheduleSessionSerializer(serializers.Serializer):
     workout_type = serializers.CharField(source='workout_type.title')
     trainer = serializers.SerializerMethodField()
     room = serializers.CharField(source='room.name')
-    start_ts = serializers.DateTimeField(format='%H:%M')
-    end_ts = serializers.DateTimeField(format='%H:%M')
+    # Отдаём момент времени целиком (ISO-8601), а не заранее отформатированные
+    # часы: форматирование под часовой пояс пользователя — задача клиента,
+    # иначе одно и то же занятие показывается в разное время в разных разделах.
+    start_ts = serializers.DateTimeField()
+    end_ts = serializers.DateTimeField()
     duration = serializers.SerializerMethodField()
     capacity = serializers.IntegerField()
     spots_left = serializers.SerializerMethodField()

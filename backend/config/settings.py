@@ -13,7 +13,12 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG')
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+def csv_list(value):
+    """Разбирает список, заданный в .env через запятую, отбрасывая пустые элементы."""
+    return [item.strip() for item in value.split(',') if item.strip()]
+
+
+ALLOWED_HOSTS = csv_list(config('ALLOWED_HOSTS', default=''))
 
 
 # Application definition
@@ -117,7 +122,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# Интерфейс и API полностью русскоязычные — стандартные тексты валидации
+# Django и DRF тоже должны приходить на русском.
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 
@@ -131,6 +138,15 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# CORS — браузер фронтенда ходит на другой порт, без этого запросы не проходят
+CORS_ALLOWED_ORIGINS = csv_list(config(
+    'CORS_ALLOWED_ORIGINS',
+    default='http://localhost:5173,http://127.0.0.1:5173',
+))
+
+# Токены передаются в заголовке Authorization, куки не используются
+CORS_ALLOW_CREDENTIALS = False
 
 # Settings DRF
 REST_FRAMEWORK = {
