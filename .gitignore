@@ -1,5 +1,10 @@
 node_modules/
 
+# Playwright
+playwright-report/
+test-results/
+/client/.playwright-cache/
+
 # Python
 __pycache__/
 *.pyc
@@ -12,7 +17,6 @@ __pycache__/
 .venv/
 
 # Django
-*.sqlite3
 debug.log
 staticfiles/
 media/
@@ -27,8 +31,8 @@ media/
 .vscode/
 *.swp
 
-# Docker
-.dockerignore
-
 # macOS
 .DS_Store
+
+# gunicorn control socket
+gunicorn.ctl
