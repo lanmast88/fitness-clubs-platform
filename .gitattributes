@@ -1,0 +1,5 @@
+# Lifecycle-скрипты devcontainer исполняются в Linux: с CRLF из Windows-клона
+# shebang ломается и контейнер не поднимается.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf

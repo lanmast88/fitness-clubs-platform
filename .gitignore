@@ -21,6 +21,9 @@ debug.log
 staticfiles/
 media/
 
+# Сборка фронтенда — артефакт vite, его делает CI и devcontainer
+/client/dist/
+
 # Env файлы
 .env
 .env.local
@@ -28,8 +31,14 @@ media/
 
 # IDE
 .idea/
-.vscode/
 *.swp
+# Личные настройки редактора — локальные, а задачи и конфиги отладки
+# общие: они часть окружения разработки вместе с .devcontainer/.
+# Негативные шаблоны работают только если каталог не исключён целиком,
+# поэтому здесь .vscode/* , а не .vscode/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
 
 # macOS
 .DS_Store

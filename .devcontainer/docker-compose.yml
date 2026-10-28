@@ -1,0 +1,77 @@
+# Compose только для devcontainer. Корневой docker-compose.yml не переопределяем:
+# там backend и frontend запускаются как сервисы, а здесь оба процесса поднимает
+# разработчик руками внутри контейнера. Общая у файлов только база — и она своя,
+# в отдельном томе, чтобы прогоны в devcontainer не трогали данные `compose up`.
+
+name: fitness-clubs-devcontainer
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Контейнер живёт, пока открыт devcontainer; процессы запускает VS Code.
+    command: sleep infinity
+    # init — чтобы процессы Chromium не копились зомби после прогонов Playwright.
+    init: true
+    # Chromium кладёт разделяемую память в /dev/shm, а в контейнере она по
+    # умолчанию 64 МБ: под нагрузкой браузер падает посреди E2E.
+    # ipc: host — ровно то, что рекомендует документация Playwright для Docker.
+    ipc: host
+    environment:
+      # Django читает настройки через decouple: переменные окружения имеют
+      # приоритет над корневым .env, так что эти значения и будут рабочими.
+      SECRET_KEY: django-insecure-devcontainer-only
+      DEBUG: "True"
+      ALLOWED_HOSTS: localhost,127.0.0.1,[::1]
+      DJANGO_LOG_LEVEL: INFO
+      # 5173 — vite dev, 4173 — vite preview (на нём гоняется Playwright).
+      CORS_ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173
+      POSTGRES_DB: fitness_clubs_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      # Порт 8000 форвардится на хост, поэтому адрес API в браузере — localhost.
+      VITE_API_URL: http://localhost:8000/api/v1
+      # Стандартные переменные libpq: psql, pg_dump и pg_isready подключаются
+      # к базе devcontainer без аргументов и без вопроса про пароль.
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: fitness_clubs_db
+    volumes:
+      - ..:/workspaces/fitness-clubs-platform:cached
+      # Артефакты сборки — в именованные тома. Иначе Linux-венв и Linux-бинарники
+      # npm перетрут те, что собраны на хосте (macOS), и сломают работу без Docker.
+      - backend_venv:/workspaces/fitness-clubs-platform/backend/.venv
+      - client_node_modules:/workspaces/fitness-clubs-platform/client/node_modules
+      # Кеши uv, npm и браузеров Playwright переживают пересборку контейнера.
+      - home_cache:/home/vscode/.cache
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fitness_clubs_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Порт наружу не публикуем: из контейнера база доступна по имени db,
+    # а на хосте 5432 обычно уже занят. Нужен psql с хоста — форварднёт VS Code.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fitness_clubs_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+  backend_venv:
+  client_node_modules:
+  home_cache:
