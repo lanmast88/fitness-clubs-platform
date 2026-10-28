@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from apps.common.mixins import CreateWithReadSerializerMixin
 from apps.users.permissions import IsClient
 from .models import Booking, PersonalTraining, WorkoutSession, WorkoutType
 from .serializers import (
@@ -137,6 +138,7 @@ class BookingViewSet(
 
 
 class PersonalTrainingViewSet(
+    CreateWithReadSerializerMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
@@ -150,6 +152,8 @@ class PersonalTrainingViewSet(
     create:   POST /api/v1/personal-trainings/
     cancel:   POST /api/v1/personal-trainings/{id}/cancel/
     """
+
+    read_serializer_class = PersonalTrainingSerializer
 
     def get_permissions(self):
         if self.action in ['create', 'cancel']:
