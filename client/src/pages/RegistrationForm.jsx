@@ -1,6 +1,7 @@
 import { useState } from "react";
-import logo from "../../public/logo.png";
 import Header from "../components/Header";
+
+const logo = "/logo.png";
 
 const RegistrationForm = () => {
   const [formValues, setFormValues] = useState({

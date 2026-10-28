@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom";
-import logo from "../../public/logo.png";
 import { clubs } from "./clubs";
 import RegistrationForm from "../pages/RegistrationForm";
+
+const logo = "/logo.png";
 
 const navLinks = [
   { name: "Клубы", linkTo: "/clubs" },

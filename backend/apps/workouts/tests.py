@@ -219,7 +219,7 @@ class BookSessionTests(APITestCase):
         self.client.force_authenticate(user=self.trainer)
         response = self.client.post(session_book_url(self.session.id), format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_403_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class CancelBookTests(APITestCase):
@@ -335,7 +335,7 @@ class PersonalTrainingTests(APITestCase):
 
         response = self.client.post(PERSONAL_URL, payload, format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_403_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_list_pt_only_own(self):
         other_user = create_user(email='other@test.com')
